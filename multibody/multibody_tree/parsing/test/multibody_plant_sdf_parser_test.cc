@@ -14,6 +14,9 @@
 #include "drake/multibody/multibody_tree/multibody_plant/multibody_plant.h"
 #include "drake/systems/framework/context.h"
 
+#include <iostream>
+#define PRINT_VAR(a) std::cout << #a": " << a << std::endl;
+
 namespace drake {
 
 using Eigen::Vector3d;
@@ -322,6 +325,16 @@ GTEST_TEST(SdfParserThrowsWhen, JointDampingIsNegative) {
       /* Verify this method is throwing for the right reasons. */
       "Joint damping is negative for joint '.*'. "
           "Joint damping must be a non-negative number.");
+}
+
+GTEST_TEST(SdfParser, IncludeTags) {
+  const std::string sdf_file_path =
+      "drake/multibody/multibody_tree/parsing/test/include_models.sdf";
+  MultibodyPlant<double> plant;
+  AddModelFromSdfFile(FindResourceOrThrow(sdf_file_path), &plant);
+
+  PRINT_VAR(plant.num_bodies());
+  PRINT_VAR(plant.num_joints());
 }
 
 }  // namespace
