@@ -47,6 +47,14 @@ ModelInstanceIndex AddModelFromSdfFile(
     const std::string& file_name,
     multibody_plant::MultibodyPlant<double>* plant,
     geometry::SceneGraph<double>* scene_graph = nullptr);
+
+/// Alternate version of AddModelFromSdfFile which add all models in the
+/// specified file.
+/// @returns The set of model instance indicies for the newly added models.
+std::vector<ModelInstanceIndex> AddModelsFromSdfFile(
+    const std::string& file_name,
+    multibody_plant::MultibodyPlant<double>* plant,
+    geometry::SceneGraph<double>* scene_graph = nullptr);
 }  // namespace parsing
 }  // namespace multibody
 }  // namespace drake

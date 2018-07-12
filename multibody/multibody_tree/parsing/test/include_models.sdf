@@ -2,7 +2,7 @@
   <world name="SimWorld">
     <include>
       <name>robot1</name>
-      <uri>model://../test/simple_robot1</uri>
+      <uri>model://simple_robot1</uri>
     </include>
     <include>
       <name>robot2</name>

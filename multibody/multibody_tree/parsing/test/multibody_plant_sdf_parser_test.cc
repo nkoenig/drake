@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <sdf/sdf.hh>
+
 #include <gtest/gtest.h>
 
 #include "drake/common/find_resource.h"
@@ -27,6 +29,7 @@ using multibody::benchmarks::acrobot::AcrobotParameters;
 using multibody::benchmarks::acrobot::MakeAcrobotPlant;
 using multibody::Body;
 using multibody::parsing::AddModelFromSdfFile;
+using multibody::parsing::AddModelsFromSdfFile;
 using systems::Context;
 
 namespace multibody {
@@ -330,11 +333,33 @@ GTEST_TEST(SdfParserThrowsWhen, JointDampingIsNegative) {
 GTEST_TEST(SdfParser, IncludeTags) {
   const std::string sdf_file_path =
       "drake/multibody/multibody_tree/parsing/test/include_models.sdf";
+  sdf::addURIPath("model://",
+      "/home/delphyne/drake/multibody/multibody_tree/parsing/test");
   MultibodyPlant<double> plant;
-  AddModelFromSdfFile(FindResourceOrThrow(sdf_file_path), &plant);
 
-  PRINT_VAR(plant.num_bodies());
-  PRINT_VAR(plant.num_joints());
+  // We start with the world and default model instances.
+  ASSERT_EQ(plant.num_model_instances(), 2);
+  ASSERT_EQ(plant.num_bodies(), 1);
+  ASSERT_EQ(plant.num_joints(), 0);
+
+  AddModelsFromSdfFile(FindResourceOrThrow(sdf_file_path), &plant);
+  plant.Finalize();
+
+  // We should have loaded one more model.
+  EXPECT_EQ(plant.num_model_instances(), 3);
+  // The model should have two bodies.
+  EXPECT_EQ(plant.num_bodies(), 3);
+  // The model should also have one joint.
+  EXPECT_EQ(plant.num_joints(), 1);
+
+  // There should be a model instance with the name "robot1".
+  EXPECT_TRUE(plant.HasModelInstanceNamed("robot1"));
+  // There should be a body with the name "a_link".
+  EXPECT_TRUE(plant.HasBodyNamed("a_link"));
+  // There should be another body with the name "moving_link".
+  EXPECT_TRUE(plant.HasBodyNamed("moving_link"));
+  // There should be joint with the name "slider".
+  EXPECT_TRUE(plant.HasJointNamed("slider"));
 }
 
 }  // namespace
