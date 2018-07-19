@@ -1,6 +1,7 @@
 #include "drake/multibody/multibody_tree/parsing/multibody_plant_sdf_parser.h"
 
 #include <memory>
+#include <vector>
 
 #include <sdf/sdf.hh>
 
@@ -282,17 +283,16 @@ void AddJointFromSpecification(
   }
 }
 
-// Helper method to add models to a MultibodyPlant given an sdf::Model
+// Helper method to add a model to a MultibodyPlant given an sdf::Model
 // specification object.
 ModelInstanceIndex AddModelFromSpecification(const sdf::Model& model,
-    const std::string& model_name,
     multibody_plant::MultibodyPlant<double>* plant,
     geometry::SceneGraph<double>* scene_graph,
-    parsers::PackageMap& package_map,
+    const parsers::PackageMap& package_map,
     const std::string& root_dir) {
 
   const ModelInstanceIndex model_instance =
-    plant->AddModelInstance(model_name);
+    plant->AddModelInstance(model.Name());
 
   // Add all the links
   for (uint64_t link_index = 0;
@@ -312,7 +312,7 @@ ModelInstanceIndex AddModelFromSpecification(const sdf::Model& model,
 
     // Add a rigid body to model each link.
     const RigidBody<double>& body =
-      plant->AddRigidBody(model_name + "/" + link.Name(),
+      plant->AddRigidBody(link.Name(),
           model_instance, M_BBo_B);
 
     if (scene_graph != nullptr) {
@@ -411,9 +411,6 @@ ModelInstanceIndex AddModelFromSdfFile(
   const std::string model_name =
       model_name_in.empty() ? model.Name() : model_name_in;
 
-  return AddModelFromSpecification(model, model_name, plant, scene_graph,
-      package_map, root_dir);
-/*
   const ModelInstanceIndex model_instance =
       plant->AddModelInstance(model_name);
 
@@ -480,7 +477,6 @@ ModelInstanceIndex AddModelFromSdfFile(
   }
 
   return model_instance;
-  */
 }
 
 ModelInstanceIndex AddModelFromSdfFile(
@@ -489,7 +485,6 @@ ModelInstanceIndex AddModelFromSdfFile(
     geometry::SceneGraph<double>* scene_graph) {
   return AddModelFromSdfFile(file_name, "", plant, scene_graph);
 }
-
 
 std::vector<ModelInstanceIndex> AddModelsFromSdfFile(
     const std::string& file_name,
@@ -540,7 +535,7 @@ std::vector<ModelInstanceIndex> AddModelsFromSdfFile(
     // Get the model.
     const sdf::Model& model = *root.ModelByIndex(i);
     model_instances.push_back(AddModelFromSpecification(
-          model, model.Name(), plant, scene_graph, package_map, root_dir));
+          model, plant, scene_graph, package_map, root_dir));
   }
 
   // Load all the worlds, and all the models in each world.
@@ -554,7 +549,7 @@ std::vector<ModelInstanceIndex> AddModelsFromSdfFile(
       // Get the model.
       const sdf::Model& model = *world.ModelByIndex(model_index);
       model_instances.push_back(AddModelFromSpecification(
-            model, model.Name(), plant, scene_graph, package_map, root_dir));
+            model, plant, scene_graph, package_map, root_dir));
     }
   }
 

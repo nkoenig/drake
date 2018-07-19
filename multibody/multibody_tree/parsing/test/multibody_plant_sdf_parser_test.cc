@@ -2,9 +2,8 @@
 
 #include <memory>
 
-#include <sdf/sdf.hh>
-
 #include <gtest/gtest.h>
+#include <sdf/sdf.hh>
 
 #include "drake/common/find_resource.h"
 #include "drake/common/test_utilities/eigen_matrix_compare.h"
@@ -15,8 +14,6 @@
 #include "drake/multibody/multibody_tree/joints/revolute_joint.h"
 #include "drake/multibody/multibody_tree/multibody_plant/multibody_plant.h"
 #include "drake/systems/framework/context.h"
-
-#include <iostream>
 #define PRINT_VAR(a) std::cout << #a": " << a << std::endl;
 
 namespace drake {
@@ -332,9 +329,8 @@ GTEST_TEST(SdfParserThrowsWhen, JointDampingIsNegative) {
 
 GTEST_TEST(SdfParser, IncludeTags) {
   const std::string sdf_file_path =
-      "drake/multibody/multibody_tree/parsing/test/include_models.sdf";
-  sdf::addURIPath("model://",
-      "/home/delphyne/drake/multibody/multibody_tree/parsing/test");
+      "drake/multibody/multibody_tree/parsing/test";
+  sdf::addURIPath("model://", FindResourceOrThrow(sdf_file_path));
   MultibodyPlant<double> plant;
 
   // We start with the world and default model instances.
@@ -342,15 +338,16 @@ GTEST_TEST(SdfParser, IncludeTags) {
   ASSERT_EQ(plant.num_bodies(), 1);
   ASSERT_EQ(plant.num_joints(), 0);
 
-  AddModelsFromSdfFile(FindResourceOrThrow(sdf_file_path), &plant);
+  AddModelsFromSdfFile(FindResourceOrThrow(
+        sdf_file_path + "/include_models.sdf"), &plant);
   plant.Finalize();
 
-  // We should have loaded one more model.
-  EXPECT_EQ(plant.num_model_instances(), 3);
-  // The model should have two bodies.
-  EXPECT_EQ(plant.num_bodies(), 3);
-  // The model should also have one joint.
-  EXPECT_EQ(plant.num_joints(), 1);
+  // We should have loaded two more models.
+  EXPECT_EQ(plant.num_model_instances(), 4);
+  // The models should have added 4 four more bodies.
+  EXPECT_EQ(plant.num_bodies(), 5);
+  // The models should have added two more joints.
+  EXPECT_EQ(plant.num_joints(), 2);
 
   // There should be a model instance with the name "robot1".
   EXPECT_TRUE(plant.HasModelInstanceNamed("robot1"));
@@ -360,6 +357,15 @@ GTEST_TEST(SdfParser, IncludeTags) {
   EXPECT_TRUE(plant.HasBodyNamed("moving_link"));
   // There should be joint with the name "slider".
   EXPECT_TRUE(plant.HasJointNamed("slider"));
+
+  // There should be a model instance with the name "robot3".
+  EXPECT_TRUE(plant.HasModelInstanceNamed("robot3"));
+  // There should be a body with the name "robot3_base_link".
+  EXPECT_TRUE(plant.HasBodyNamed("robot3_base_link"));
+  // There should be another body with the name "robot3_moving_link".
+  EXPECT_TRUE(plant.HasBodyNamed("robot3_moving_link"));
+  // There should be joint with the name ""robot3_slider".
+  EXPECT_TRUE(plant.HasJointNamed("robot3_slider"));
 }
 
 }  // namespace
