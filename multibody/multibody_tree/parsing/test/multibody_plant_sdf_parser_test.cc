@@ -14,7 +14,6 @@
 #include "drake/multibody/multibody_tree/joints/revolute_joint.h"
 #include "drake/multibody/multibody_tree/multibody_plant/multibody_plant.h"
 #include "drake/systems/framework/context.h"
-#define PRINT_VAR(a) std::cout << #a": " << a << std::endl;
 
 namespace drake {
 

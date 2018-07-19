@@ -391,7 +391,6 @@ ModelInstanceIndex AddModelFromSdfFile(
   // Get the only model in the file.
   const sdf::Model& model = *root.ModelByIndex(0);
 
-
   if (scene_graph != nullptr && !plant->geometry_source_is_registered()) {
     plant->RegisterAsSourceForSceneGraph(scene_graph);
   }
@@ -410,7 +409,6 @@ ModelInstanceIndex AddModelFromSdfFile(
 
   const std::string model_name =
       model_name_in.empty() ? model.Name() : model_name_in;
-
   const ModelInstanceIndex model_instance =
       plant->AddModelInstance(model_name);
 
@@ -509,7 +507,8 @@ std::vector<ModelInstanceIndex> AddModelsFromSdfFile(
 
   if (root.ModelCount() == 0 && root.WorldCount() == 0) {
     throw std::runtime_error(
-        "File must have at least one <model> or <world> element.");
+        "File must have at least one <model>, or <world> with one "
+        "child <model> lement.");
   }
 
   if (scene_graph != nullptr && !plant->geometry_source_is_registered()) {
